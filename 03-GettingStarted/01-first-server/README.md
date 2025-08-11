@@ -58,14 +58,25 @@ server.registerTool({
   name: "calculator",
   description: "Performs basic calculations",
   parameters: {
-    expression: {
-      type: "string",
-      description: "The math expression to evaluate"
-    }
+    a: { type: "number", description: "First operand" },
+    b: { type: "number", description: "Second operand" },
+    op: { type: "string", enum: ["add", "subtract", "multiply", "divide"], description: "Operation" }
   },
-  handler: async (params) => {
-    const result = eval(params.expression);
-    return { result };
+  handler: async ({ a, b, op }) => {
+    if (op === "divide" && b === 0) {
+      throw new Error("Division by zero");
+    }
+    const operations = {
+      add: (x, y) => x + y,
+      subtract: (x, y) => x - y,
+      multiply: (x, y) => x * y,
+      divide: (x, y) => x / y
+    };
+    const fn = operations[op];
+    if (!fn) {
+      throw new Error("Unsupported operation");
+    }
+    return { result: fn(a, b) };
   }
 });
 
